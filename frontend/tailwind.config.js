@@ -13,6 +13,25 @@ const config = {
         sans: ["var(--font-sans)"],
         mono: ["var(--font-mono)"],
       },
+      animation: {
+        "gradient-shift": "gradient-shift 8s ease infinite",
+      },
+      keyframes: {
+        "gradient-shift": {
+          "0%, 100%": {
+            transform: "translate(0%, 0%)",
+          },
+          "25%": {
+            transform: "translate(10%, 10%)",
+          },
+          "50%": {
+            transform: "translate(-5%, 15%)",
+          },
+          "75%": {
+            transform: "translate(-10%, -5%)",
+          },
+        },
+      },
     },
   },
   darkMode: "class",

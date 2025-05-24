@@ -20,13 +20,13 @@ import { ThemeSwitch } from "@/components/theme-switch";
 
 export const Navbar = () => {
   const { data: session } = useSession();
-
+  
   return (
-    <HeroUINavbar maxWidth="xl" position="sticky">
+    <HeroUINavbar maxWidth="xl" position="sticky" className="bg-transparent">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand as="li" className="gap-3 max-w-fit">
           <NextLink className="flex justify-start items-center gap-1" href="/">
-            <p className="font-bold text-inherit">ACME</p>
+            <p className="font-bold text-inherit text-2xl">Deploy AI</p>
           </NextLink>
         </NavbarBrand>
         <ul className="hidden lg:flex gap-4 justify-start ml-2">
