@@ -5,3 +5,5 @@ databases
 asyncpg
 pydantic
 sqlmodel
+uvicorn
+langchain

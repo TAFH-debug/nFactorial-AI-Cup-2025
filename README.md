@@ -1,11 +1,13 @@
 # nFactorial-Ai-Cup-2025
 Fork this repository and build nFactorial Ai Cup 2025 projects 
 
-## < Your Name >
+## Talim Aushakhman
 
-## < Your App's Name >
+## DeployAI
 
-## < Your App's description, technical considerations, etc. >
+## Description
+Automatically deploys your project - whether it is a Node.js application or FastAPI backend: Anything you need to do is paste link to your repository and server credentials. 
+All done, your project is deployed!
 
 
 ## Typeform to submit:
