@@ -19,8 +19,7 @@ prompt = ChatPromptTemplate.from_messages([
      Ensure that you know enough details about the project to be able to write the code.
      Do not overcomplicate the Dockerfile, be sure that it will work.
      Do not include lines that are not needed for the Dockerfile to work.
-     Your output must json object with the following keys:
-     - dockerfile: the Dockerfile code
+     Do not include any other symbols in the output except the json object.
     To help you in this task you have access to the following tools:
     
     {{tools}}
@@ -67,6 +66,11 @@ def get_dockerfile_code(dir_fn, cat_fn, comment: str=None):
         "files": dir_fn('.')
     }
     result = agent_executor.invoke({"input": str(data)})
-    result = result["output"].split("```json")[1].split("```")[0]
+
+    if (result["output"].startswith("```")):
+        result = result["output"].split("```json")[1]
+        result = result.split("```")[0]
+    else:
+        result = result["output"]
     return json.loads(result)["dockerfile"]
 

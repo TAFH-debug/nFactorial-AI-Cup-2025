@@ -119,7 +119,7 @@ class SSHDeployer:
 
 
 
-def deploy(github_repo: str, hostname: str, username: str, key: str, env_file: str, tracer = None):
+def deploy(github_repo: str, hostname: str, username: str, key: str, env_file: str, base_path: str, tracer = None):
     deployer = SSHDeployer(hostname=hostname, username=username)
     deployer.connect(key=key)
 
@@ -134,8 +134,11 @@ def deploy(github_repo: str, hostname: str, username: str, key: str, env_file: s
         You are a DevOps Engineer. 
         You will be provided with project repository link and dockerfile code.
         Your task is to deploy the project on the remote server.
+        There may be an existing deployment on the server.
+        If there is an existing deployment, you should stop and delete it.
+        But make sure that it is same project and not another part of the same project.
         You will be provided by sudo password to run commands.
-        After running docker container, ensure that the container is running and accessible from the outside.
+        After running docker container, ensure that the container is running and accessible from the outside using curl or check the logs.
         To help you in this task you have access to the following tools:
         
         {{tools}}
@@ -154,7 +157,7 @@ def deploy(github_repo: str, hostname: str, username: str, key: str, env_file: s
         MessagesPlaceholder(variable_name="agent_scratchpad")
     ])
 
-    dir_fn, cat_fn = get_repo_read_functions(github_repo)
+    dir_fn, cat_fn = get_repo_read_functions(github_repo, base_path)
     tools = [tool(deployer.execute_command), tool(get_dockerfile_code_tool(dir_fn, cat_fn))]
 
     agent = create_tool_calling_agent(
@@ -167,13 +170,14 @@ def deploy(github_repo: str, hostname: str, username: str, key: str, env_file: s
         tools=tools, 
         agent=agent, 
         verbose=True, 
-        max_iterations=1
+        max_iterations=None
     )
 
     data = {
         "link": github_repo,
         "dockerfile": get_dockerfile_code(dir_fn, cat_fn),
-        "env_file": env_file
+        "env_file": env_file,
+        "base_path": base_path
     }
 
     result = agent_executor.invoke({"input": str(data)}, {

@@ -7,3 +7,6 @@ pydantic
 sqlmodel
 uvicorn
 langchain
+paramiko
+python-dotenv
+langchain-google-genai

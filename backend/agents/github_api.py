@@ -4,14 +4,14 @@ import requests
 def get_owner_and_repo(github_repo):
     return github_repo.split("/")[-2], github_repo.split("/")[-1]
 
-def get_repo_read_functions(github_repo):
+def get_repo_read_functions(github_repo, base_path):
     owner, repo = get_owner_and_repo(github_repo)
 
     def get_dir_files(dir_path):
         """
         Get names of files and directories in a given path.
         """
-        url = f"https://api.github.com/repos/{owner}/{repo}/contents/{dir_path}"
+        url = f"https://api.github.com/repos/{owner}/{repo}/contents/{base_path}/{dir_path}"
         response = requests.get(url)
         unformatted_res = response.json()
 
@@ -28,7 +28,7 @@ def get_repo_read_functions(github_repo):
         """
         Get the content of a file.
         """
-        url = f"https://api.github.com/repos/{owner}/{repo}/contents/{file_path}"
+        url = f"https://api.github.com/repos/{owner}/{repo}/contents/{base_path}/{file_path}"
         response = requests.get(url)
 
         content = response.json()["content"]
