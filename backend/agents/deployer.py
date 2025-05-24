@@ -1,5 +1,4 @@
 import io
-import os
 from langchain_google_genai import ChatGoogleGenerativeAI
 import paramiko
 import logging
@@ -8,8 +7,8 @@ from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.agents import create_tool_calling_agent, AgentExecutor
 from langchain.tools import tool
 
-from dockerizer import get_dockerfile_code
-from github_api import get_repo_read_functions
+from agents.dockerizer import get_dockerfile_code, get_dockerfile_code_tool
+from agents.github_api import get_repo_read_functions
 
 class SSHDeployer:
     def __init__(self, hostname: str, username: str, 
@@ -119,48 +118,6 @@ class SSHDeployer:
         self.close()
 
 
-key = """
------BEGIN OPENSSH PRIVATE KEY-----
-b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABlwAAAAdzc2gtcn
-NhAAAAAwEAAQAAAYEAsLUHrNvQMiKGLFXw+iSO1TSfRB7pMv5x8CocxIbQ3wgjlEIgWbb1
-+ZyypKsYKi4jA6b9dqdK/qY2S9BB7EJ7M+K1f59tbayth9rkidUovHriaVPuoBmSBcjQrA
-GCKoSVY7cYyxLbAvuIxY4HDSSjsUSA96Y7rmoin5ZIWwohXKSEIzECnXne10oti1Mbk4KM
-URt8fcK/J8NWB58oGiMNmSa96P/CHWSEIjJhlRWl78QAoja/8UTkmqNvwILyFTECzXEtuM
-GujITcmMox2P3jEVXcZ+SPtzQL6T/YJyHY+aurq31yFeJOVfWqxU2XrvX3r1jMytMrdy2t
-tYUg89CmyzyCbRira1Ls1q3HrHLqV+959h7Znp7X38DexvJd6AsJbjEftIzoFSPHOR0QDd
-tmOPFIx7kol6BsHPhdYGJs7MqIeZ93Rg2UiYRBVbyph058wvosKZhlMZNjjMRM3l2vbWaK
-Yl3jlRtvDbsDOAulbUgGmwdZrffhJbaK1GGR+g89AAAFiGAm7CZgJuwmAAAAB3NzaC1yc2
-EAAAGBALC1B6zb0DIihixV8PokjtU0n0Qe6TL+cfAqHMSG0N8II5RCIFm29fmcsqSrGCou
-IwOm/XanSv6mNkvQQexCezPitX+fbW2srYfa5InVKLx64mlT7qAZkgXI0KwBgiqElWO3GM
-sS2wL7iMWOBw0ko7FEgPemO65qIp+WSFsKIVykhCMxAp153tdKLYtTG5OCjFEbfH3CvyfD
-VgefKBojDZkmvej/wh1khCIyYZUVpe/EAKI2v/FE5Jqjb8CC8hUxAs1xLbjBroyE3JjKMd
-j94xFV3Gfkj7c0C+k/2Cch2Pmrq6t9chXiTlX1qsVNl671969YzMrTK3ctrbWFIPPQpss8
-gm0Yq2tS7Natx6xy6lfvefYe2Z6e19/A3sbyXegLCW4xH7SM6BUjxzkdEA3bZjjxSMe5KJ
-egbBz4XWBibOzKiHmfd0YNlImEQVW8qYdOfML6LCmYZTGTY4zETN5dr21mimJd45Ubbw27
-AzgLpW1IBpsHWa334SW2itRhkfoPPQAAAAMBAAEAAAGABoXqjnlxsROHMCrxJjrIrwjAZ8
-uAUuFxbL01zvCTr+XAlw3JSoH4rSWG/GzmMC4kr1MdyaCHD8TjRszmlqoAdpcomX3oJqgq
-xy89kWGRePlw5V2hZHWa51t5stRi2roYza8cNsQK/x55raJsbjbGwVCgNii6qCLnvAL87I
-Lb8CLaBnaLsysSsP3ecWWB2z1yoE65BMLkFrvT+MDpwjU+e/prJScz2RrHhVsUMRtr53L2
-ICtrzjaya2b3ILMroyoOqJEiJxKnvI4sqLNd8o91z9GZ5O0ry2N77mxeFeBmiShP5DsTs0
-eABwotE1K2fV6J5RKCGKDKp9xr1C0NSNb3USnAEL+iFweCsQZXhn/6+xaRBeDaAnGifHAZ
-qHV5oBp9pHJjJ9Xwmnk9Cpp7M22ooTePq/wJ7TDi+yaaF2CSMS/ekw/ZKFVTKxXiDBoimi
-5nUMCe1n+X5lmwDDnPT6wD5BajTVQRdmtxXDb1glEyd67XA4yBldbEeMp6WMA15YR9AAAA
-wEhTPbpsJfC8wh13pxgjbrJP2HcwXNRx4GPMxbyceSnPpKjan5n/tE7yEUdtgJH09XfD7O
-th4F7Lj3PCd6IzKgNSTnB+1oxwysbVnzdE0KzD3PcOScCugRPaqSiDZBD3BKIzuNHJEsaR
-Swyw1qyt7vrBsCey5fMhWz0XBVjz4NTTgpr32hW/dR23Y3Uqw4TTnwF32iAHXm89mz/vrG
-AkhrZbhfEdXuOTZKnFrt8ECbo1Edlfv96ABdxn+GA/bQW7HAAAAMEA3gqBHCZuutQW2qd5
-cz9bDNh3qFc0TJ0HXj43/jk9G3jhQcfWaVi/ZVj39Olicyg/DcB5/E18FYiWwID2DWHBYt
-hOEnzXKCVfr6UUeZ7I0cbZsI1wBJ5219gw8NXGDOW9NdYALul0TQTW+kTZnLecwVz8DZJ0
-cCl+xn3sGJrD0smQXY9P4t6Cyn/c5nMb60qFmEAVYnAuhlVgT5NBBC//DZ6ZJ7m3hPFSGG
-eVome9AwT9uZDe+/3mYZn2TtxVGL6jAAAAwQDLu5VyRR6tIgDkZJ7jZVWHWyePkKq8Cf28
-NaYHikhpF0Xy8QIz2vGrfhM8STq+E12j3X6R7nlFO4xKIq9F0qJWNtC6W+sEtoW76gAZMq
-JyTEoe0oBdvSmuZtzKN0e8uABPoeVYQ24s0HV8KaqnKpVT8b9QWa+3Pk/wh9NIneid80S+
-OEAJ3oFPCvv3HwA8S+IXyuWLsCFcRXQIhnV3atJMzI6RAjwYeToA2zg9LbvZTmd8GJ7/wn
-A9HENljOD4OJ8AAAANYXVzaGFobWFuMjAwNwECAwQFBg==
------END OPENSSH PRIVATE KEY-----
-"""
-
-
 
 def deploy(github_repo: str, hostname: str, username: str, key: str, env_file: str):
     deployer = SSHDeployer(hostname=hostname, username=username)
@@ -169,7 +126,7 @@ def deploy(github_repo: str, hostname: str, username: str, key: str, env_file: s
     llm = ChatGoogleGenerativeAI(
         model="gemini-2.5-flash-preview-05-20",
         convert_system_message_to_human=True,
-        response_format={"type": "json_object"}
+        model_kwargs={"response_mime_type": "application/json"}
     )
 
     prompt = ChatPromptTemplate.from_messages([
@@ -197,7 +154,8 @@ def deploy(github_repo: str, hostname: str, username: str, key: str, env_file: s
         MessagesPlaceholder(variable_name="agent_scratchpad")
     ])
 
-    tools = [tool(deployer.execute_command), tool(get_dockerfile_code)]
+    dir_fn, cat_fn = get_repo_read_functions(github_repo)
+    tools = [tool(deployer.execute_command), tool(get_dockerfile_code_tool(dir_fn, cat_fn))]
 
     agent = create_tool_calling_agent(
         llm=llm,
@@ -205,15 +163,14 @@ def deploy(github_repo: str, hostname: str, username: str, key: str, env_file: s
         prompt=prompt
     )
 
-    agent_executor = AgentExecutor(tools=tools, agent=agent, verbose=True)
+    agent_executor = AgentExecutor(tools=tools, agent=agent, verbose=True, max_iterations=None)
 
     data = {
         "link": github_repo,
-        "dockerfile": get_dockerfile_code(get_repo_read_functions(github_repo)),
+        "dockerfile": get_dockerfile_code(dir_fn, cat_fn),
         "env_file": env_file
     }
     result = agent_executor.invoke({"input": str(data)})
 
     return result["output"]
 
-print(deploy(github_repo="https://github.com/TAFH-debug/nextjs_template", hostname="35.188.179.99", username="aushahman2007", key=key, env_file="DATABASE_URL=postgresql://neondb_owner:npg_Y7arHl4cWzRb@ep-damp-silence-a8bvmqvq-pooler.eastus2.azure.neon.tech/neondb?sslmode=require"))

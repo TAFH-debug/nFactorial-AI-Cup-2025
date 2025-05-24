@@ -1,6 +1,5 @@
 import json
 from langchain_core.tools import tool
-import os
 from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -8,30 +7,8 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash-preview-05-20",
     convert_system_message_to_human=True,
-    response_mime_type="application/json"
+    model_kwargs={"response_mime_type": "application/json"}
 )
-
-@tool
-def dir(path):
-    """
-    Get names of files and directories in a given path.
-    """
-    files = []
-    for file in os.listdir(path):
-        name = os.path.basename(file)
-        if os.path.isfile(file):
-            files.append({"name": name, "type": "file"})
-        else:
-            files.append({"name": name, "type": "directory"})
-    return files
-
-@tool
-def cat(path):
-    """
-    Get the content of a file.
-    """
-    with open(path, "r") as f:
-        return f.read()
 
 prompt = ChatPromptTemplate.from_messages([
     ("system", """
@@ -62,7 +39,19 @@ prompt = ChatPromptTemplate.from_messages([
     MessagesPlaceholder(variable_name="agent_scratchpad")
 ])
 
-def get_dockerfile_code(dir_fn, cat_fn, comment):
+def get_dockerfile_code_tool(dir_fn, cat_fn):
+
+    def wrapper(comment: str):
+        """
+        Get the dockerfile code.
+        Use this only if there is some error in the previous dockerfile code.
+        comment: comment to be considered while writing the dockerfile.
+        """
+        return get_dockerfile_code(dir_fn, cat_fn, comment)
+    
+    return wrapper
+
+def get_dockerfile_code(dir_fn, cat_fn, comment: str=None):
     tools = [tool(dir_fn), tool(cat_fn)]
 
     agent = create_tool_calling_agent(

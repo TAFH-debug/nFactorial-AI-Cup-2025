@@ -3,6 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select
 from models import *
 from database import get_db
+import dotenv
+dotenv.load_dotenv(dotenv_path=".env")
+
+from deployer import router as deployer_router
+from dockerizer import router as dockerizer_router
+
 
 async def lifespan(_):
     database = get_db()
@@ -11,6 +17,8 @@ async def lifespan(_):
     await database.disconnect()
     
 app = FastAPI(lifespan=lifespan)
+app.include_router(deployer_router)
+app.include_router(dockerizer_router)
 
 origins = ["*"]
 app.add_middleware(
@@ -20,11 +28,3 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-@app.get("/users/")
-async def get_all_users():
-    query = select(
-        User
-    )
-    return await get_db().fetch_all(query)
-    
