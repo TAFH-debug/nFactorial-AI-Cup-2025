@@ -32,7 +32,7 @@ prompt = ChatPromptTemplate.from_messages([
         "action": "tool_name",
         "action_input": "the input to the tool",
         "observation": "the result of the action",
-        "final_answer": "the final answer to the original input question"
+        "dockerfile": "the Dockerfile code"
     }}
     """),
     ("user", "{input}"),
@@ -68,5 +68,5 @@ def get_dockerfile_code(dir_fn, cat_fn, comment: str=None):
     }
     result = agent_executor.invoke({"input": str(data)})
     result = result["output"].split("```json")[1].split("```")[0]
-    return json.loads(result)['final_answer']["dockerfile"]
+    return json.loads(result)["dockerfile"]
 

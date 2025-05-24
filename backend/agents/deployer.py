@@ -119,7 +119,7 @@ class SSHDeployer:
 
 
 
-def deploy(github_repo: str, hostname: str, username: str, key: str, env_file: str):
+def deploy(github_repo: str, hostname: str, username: str, key: str, env_file: str, tracer = None):
     deployer = SSHDeployer(hostname=hostname, username=username)
     deployer.connect(key=key)
 
@@ -163,14 +163,22 @@ def deploy(github_repo: str, hostname: str, username: str, key: str, env_file: s
         prompt=prompt
     )
 
-    agent_executor = AgentExecutor(tools=tools, agent=agent, verbose=True, max_iterations=None)
+    agent_executor = AgentExecutor(
+        tools=tools, 
+        agent=agent, 
+        verbose=True, 
+        max_iterations=1
+    )
 
     data = {
         "link": github_repo,
         "dockerfile": get_dockerfile_code(dir_fn, cat_fn),
         "env_file": env_file
     }
-    result = agent_executor.invoke({"input": str(data)})
+
+    result = agent_executor.invoke({"input": str(data)}, {
+        "callbacks": [tracer] if tracer else None
+    })
 
     return result["output"]
 
