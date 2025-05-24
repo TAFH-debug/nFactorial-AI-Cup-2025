@@ -9,38 +9,19 @@ from langchain.agents import create_tool_calling_agent, AgentExecutor
 from langchain.tools import tool
 
 from dockerizer import get_dockerfile_code
-from github_api import get_dir_files, get_file_content
-
-os.environ["GOOGLE_API_KEY"] = "AIzaSyA0mMdZMZd-WNxfkvWhJtc-Oy_sxpD0wkY"
+from github_api import get_repo_read_functions
 
 class SSHDeployer:
-    def __init__(self, hostname: str, username: str, password: Optional[str] = None, 
+    def __init__(self, hostname: str, username: str, 
                  key_filename: Optional[str] = None, port: int = 22):
-        """
-        Initialize SSH deployer with connection details.
-        
-        Args:
-            hostname: Remote server hostname or IP
-            username: SSH username
-            password: SSH password (optional if using key-based auth)
-            key_filename: Path to private key file (optional if using password auth)
-            port: SSH port (default: 22)
-        """
         self.hostname = hostname
         self.username = username
-        self.password = password
         self.key_filename = key_filename
         self.port = port
         self.client: Optional[paramiko.SSHClient] = None
         self.logger = logging.getLogger(__name__)
 
     def connect(self, key: str) -> bool:
-        """
-        Establish SSH connection to the remote server.
-        
-        Returns:
-            bool: True if connection successful, False otherwise
-        """
         try:
             self.client = paramiko.SSHClient()
             self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -52,8 +33,6 @@ class SSHDeployer:
                 "pkey": paramiko.RSAKey.from_private_key(io.StringIO(key))
             }
             
-            if self.password:
-                connect_kwargs["password"] = self.password
             if self.key_filename:
                 connect_kwargs["key_filename"] = self.key_filename
 
@@ -181,42 +160,44 @@ A9HENljOD4OJ8AAAANYXVzaGFobWFuMjAwNwECAwQFBg==
 -----END OPENSSH PRIVATE KEY-----
 """
 
-deployer = SSHDeployer(hostname="35.188.179.99", username="aushahman2007", password="aushahman2A")
-deployer.connect(key=key)
 
-llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash-preview-05-20",
-    convert_system_message_to_human=True,
-    response_format={"type": "json_object"}
-)
 
-prompt = ChatPromptTemplate.from_messages([
-    ("system", """
-     You are a DevOps Engineer. 
-     You will be provided with project repository link and dockerfile code.
-     Your task is to deploy the project on the remote server.
-     You will be provided by sudo password to run commands.
-     After running docker container, ensure that the container is running and accessible from the outside.
-    To help you in this task you have access to the following tools:
-    
-    {{tools}}
-    
-    Use the following json format:
-    
-    {{
-        "thought": "Think about what to do",
-        "action": "tool_name",
-        "action_input": "the input to the tool",
-        "observation": "the result of the action",
-        "final_answer": "the final answer to the original input question"
-    }}
-    """),
-    ("user", "{input}"),
-    MessagesPlaceholder(variable_name="agent_scratchpad")
-])
+def deploy(github_repo: str, hostname: str, username: str, key: str, env_file: str):
+    deployer = SSHDeployer(hostname=hostname, username=username)
+    deployer.connect(key=key)
 
-def deploy():
-    tools = [tool(deployer.execute_command)]
+    llm = ChatGoogleGenerativeAI(
+        model="gemini-2.5-flash-preview-05-20",
+        convert_system_message_to_human=True,
+        response_format={"type": "json_object"}
+    )
+
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", """
+        You are a DevOps Engineer. 
+        You will be provided with project repository link and dockerfile code.
+        Your task is to deploy the project on the remote server.
+        You will be provided by sudo password to run commands.
+        After running docker container, ensure that the container is running and accessible from the outside.
+        To help you in this task you have access to the following tools:
+        
+        {{tools}}
+        
+        Use the following json format:
+        
+        {{
+            "thought": "Think about what to do",
+            "action": "tool_name",
+            "action_input": "the input to the tool",
+            "observation": "the result of the action",
+            "final_answer": "the final answer to the original input question"
+        }}
+        """),
+        ("user", "{input}"),
+        MessagesPlaceholder(variable_name="agent_scratchpad")
+    ])
+
+    tools = [tool(deployer.execute_command), tool(get_dockerfile_code)]
 
     agent = create_tool_calling_agent(
         llm=llm,
@@ -227,15 +208,12 @@ def deploy():
     agent_executor = AgentExecutor(tools=tools, agent=agent, verbose=True)
 
     data = {
-        "link": "https://github.com/TAFH-debug/nextjs_template",
-        "sudo_password": "aushahman2A",
-        "dockerfile": get_dockerfile_code(get_dir_files, get_file_content),
-        "env_file": """
-DATABASE_URL=postgresql://neondb_owner:npg_Y7arHl4cWzRb@ep-damp-silence-a8bvmqvq-pooler.eastus2.azure.neon.tech/neondb?sslmode=require
-GOOGLE_CLIENT_ID=123456789123-zxcxzxczxczxczxczxczxc.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=ASDASD-ASDJJasd_asdjaskdjkasd
-"""
+        "link": github_repo,
+        "dockerfile": get_dockerfile_code(get_repo_read_functions(github_repo)),
+        "env_file": env_file
     }
     result = agent_executor.invoke({"input": str(data)})
 
-deploy()
+    return result["output"]
+
+print(deploy(github_repo="https://github.com/TAFH-debug/nextjs_template", hostname="35.188.179.99", username="aushahman2007", key=key, env_file="DATABASE_URL=postgresql://neondb_owner:npg_Y7arHl4cWzRb@ep-damp-silence-a8bvmqvq-pooler.eastus2.azure.neon.tech/neondb?sslmode=require"))

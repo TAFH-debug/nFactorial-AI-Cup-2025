@@ -4,13 +4,11 @@ import os
 from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_google_genai import ChatGoogleGenerativeAI
-from github_api import get_dir_files, get_file_content
-
-os.environ["GOOGLE_API_KEY"] = "AIzaSyA0mMdZMZd-WNxfkvWhJtc-Oy_sxpD0wkY"
 
 llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash-preview-05-20",
     convert_system_message_to_human=True,
+    response_mime_type="application/json"
 )
 
 @tool
@@ -64,7 +62,7 @@ prompt = ChatPromptTemplate.from_messages([
     MessagesPlaceholder(variable_name="agent_scratchpad")
 ])
 
-def get_dockerfile_code(dir_fn, cat_fn):
+def get_dockerfile_code(dir_fn, cat_fn, comment):
     tools = [tool(dir_fn), tool(cat_fn)]
 
     agent = create_tool_calling_agent(
@@ -75,7 +73,11 @@ def get_dockerfile_code(dir_fn, cat_fn):
 
     agent_executor = AgentExecutor(tools=tools, agent=agent, verbose=True)
 
-    result = agent_executor.invoke({"input": str(dir_fn('.'))})
+    data = {
+        "comment": comment,
+        "files": dir_fn('.')
+    }
+    result = agent_executor.invoke({"input": str(data)})
     result = result["output"].split("```json")[1].split("```")[0]
     return json.loads(result)['final_answer']["dockerfile"]
 
