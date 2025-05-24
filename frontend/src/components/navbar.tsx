@@ -17,6 +17,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
+import { UploadIcon } from "lucide-react";
 
 export const Navbar = () => {
   const { data: session } = useSession();
@@ -26,6 +27,7 @@ export const Navbar = () => {
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand as="li" className="gap-3 max-w-fit">
           <NextLink className="flex justify-start items-center gap-1" href="/">
+            <UploadIcon className="w-6 h-6" />
             <p className="font-bold text-inherit text-2xl">Deploy AI</p>
           </NextLink>
         </NavbarBrand>
