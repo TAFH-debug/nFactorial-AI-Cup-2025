@@ -10,3 +10,5 @@ langchain
 paramiko
 python-dotenv
 langchain-google-genai
+websockets
+uvicorn[standard]

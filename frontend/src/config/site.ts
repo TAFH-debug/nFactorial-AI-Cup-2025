@@ -8,11 +8,27 @@ export const siteConfig = {
       label: "Home",
       href: "/",
     },
+    {
+      label: "Deploy",
+      href: "/deploy",
+    },
+    {
+      label: "Redeploy",
+      href: "/redeploy",
+    },
   ],
   navMenuItems: [
     {
       label: "Home",
       href: "/",
+    },
+    {
+      label: "Deploy",
+      href: "/deploy",
+    },
+    {
+      label: "Redeploy",
+      href: "/redeploy",
     },
   ],
 };

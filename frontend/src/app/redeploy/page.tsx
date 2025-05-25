@@ -60,7 +60,7 @@ export default function Page() {
                 if (prs.startsWith("ERROR:")) {
                     addToast({
                         title: "Error",
-                        description: prs.split(":")[1],
+                        description: prs,
                         color: "danger"
                     });
                     return;
@@ -69,14 +69,14 @@ export default function Page() {
                 if (prs.startsWith("SUCCESS:")) {
                     addToast({
                         title: "Success",
-                        description: prs.split(":")[1],
+                        description: prs,
                         color: "success"
                     });
                 }
 
                 if (prs.startsWith("CMD:")) {
                     setOutput(output => [...output, {
-                        text: prs.split(":")[1],
+                        text: prs,
                         type: "cmd"
                     }]);
                 }
