@@ -17,7 +17,10 @@ prompt = ChatPromptTemplate.from_messages([
      Your task is to write Dockerfile for the project.
      You must provide a Dockerfile code that can be run immediately. 
      Ensure that you know enough details about the project to be able to write the code.
-     Do not overcomplicate the Dockerfile, be sure that it will work.
+     Be absolutely sure that the Dockerfile will work.
+     Do not overcomplicate the Dockerfile.
+     Make sure that every executed command will be found.
+     See every config file to maximally fit the project.
      Do not include lines that are not needed for the Dockerfile to work.
      Do not include any other symbols in the output except the json object.
     To help you in this task you have access to the following tools:

@@ -3,7 +3,7 @@ import { title } from "@/components/primitives";
 import { BackgroundLines } from "@/components/ui/background-lines";
 import { Button } from "@heroui/button";
 import { Form } from "@heroui/form";
-import { Input, Textarea } from "@heroui/input";
+import { Link } from "@heroui/link";
 import { motion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
@@ -58,7 +58,7 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Button size="lg" color="primary" className="w-full">
+            <Button size="lg" color="primary" className="w-full" as={Link} href="/deploy">
               Deploy
             </Button>
           </motion.div>

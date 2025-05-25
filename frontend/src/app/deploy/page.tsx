@@ -20,7 +20,7 @@ export default function Page() {
     const [key, setKey] = useState("");
     const [username, setUsername] = useState("");
     const [envFile, setEnvFile] = useState("");
-    const [basePath, setBasePath] = useState("");
+    const [basePath, setBasePath] = useState(".");
     const [output, setOutput] = useState<{text: string, type: string}[]>([]);
     const ws = useRef<WebSocket | null>(null);
     
@@ -64,6 +64,21 @@ export default function Page() {
                         color: "danger"
                     });
                     return;
+                }
+
+                if (prs.startsWith("SUCCESS:")) {
+                    addToast({
+                        title: "Success",
+                        description: prs.split(":")[1],
+                        color: "success"
+                    });
+                }
+
+                if (prs.startsWith("CMD:")) {
+                    setOutput(output => [...output, {
+                        text: prs.split(":")[1],
+                        type: "cmd"
+                    }]);
                 }
 
                 try {

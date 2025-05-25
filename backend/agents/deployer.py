@@ -135,8 +135,9 @@ def deploy(github_repo: str, hostname: str, username: str, key: str, env_file: s
         You will be provided with project repository link and dockerfile code.
         Your task is to deploy the project on the remote server.
         There may be an existing deployment on the server.
-        If there is an existing deployment, you should stop and delete it.
-        But make sure that it is same project and not another part of the same project.
+        You should stop and delete the existing deployment ONLY if it uses same port.
+        But be careful and make sure that you are not deleting the wrong project.
+        Also be careful when manipulating the docker containers.
         You will be provided by sudo password to run commands.
         After running docker container, ensure that the container is running and accessible from the outside using curl or check the logs.
         To help you in this task you have access to the following tools:
