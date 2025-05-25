@@ -6,5 +6,5 @@ router = fastapi.APIRouter()
 
 @router.post("/dockerize")
 async def dockerize(github_repo: str):
-    return {"dockerfile": get_dockerfile_code(github_repo)}
+    return {"dockerfile": await get_dockerfile_code(github_repo)}
 

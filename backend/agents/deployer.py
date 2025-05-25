@@ -119,7 +119,7 @@ class SSHDeployer:
 
 
 
-def deploy(github_repo: str, hostname: str, username: str, key: str, env_file: str, base_path: str, tracer = None):
+async def deploy(github_repo: str, hostname: str, username: str, key: str, env_file: str, base_path: str, tracer = None):
     deployer = SSHDeployer(hostname=hostname, username=username)
     deployer.connect(key=key)
 
@@ -176,12 +176,12 @@ def deploy(github_repo: str, hostname: str, username: str, key: str, env_file: s
 
     data = {
         "link": github_repo,
-        "dockerfile": get_dockerfile_code(dir_fn, cat_fn),
+        "dockerfile": await get_dockerfile_code(dir_fn, cat_fn),
         "env_file": env_file,
         "base_path": base_path
     }
 
-    result = agent_executor.invoke({"input": str(data)}, {
+    result = await agent_executor.ainvoke({"input": str(data)}, {
         "callbacks": [tracer] if tracer else None
     })
 

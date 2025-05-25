@@ -53,7 +53,7 @@ def get_dockerfile_code_tool(dir_fn, cat_fn):
     
     return wrapper
 
-def get_dockerfile_code(dir_fn, cat_fn, comment: str=None):
+async def get_dockerfile_code(dir_fn, cat_fn, comment: str=None):
     tools = [tool(dir_fn), tool(cat_fn)]
 
     agent = create_tool_calling_agent(
@@ -68,7 +68,7 @@ def get_dockerfile_code(dir_fn, cat_fn, comment: str=None):
         "comment": comment,
         "files": dir_fn('.')
     }
-    result = agent_executor.invoke({"input": str(data)})
+    result = await agent_executor.ainvoke({"input": str(data)})
 
     if (result["output"].startswith("```")):
         result = result["output"].split("```json")[1]

@@ -12,7 +12,7 @@ from agents.github_api import get_repo_read_functions
 from agents.deployer import SSHDeployer
 
 
-def redeploy(github_repo: str, hostname: str, username: str, key: str, env_file: str, base_path: str, tracer = None):
+async def redeploy(github_repo: str, hostname: str, username: str, key: str, env_file: str, base_path: str, tracer = None):
     deployer = SSHDeployer(hostname=hostname, username=username)
     deployer.connect(key=key)
 

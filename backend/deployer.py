@@ -30,8 +30,7 @@ async def deploy_endpoint(websocket: fastapi.WebSocket):
     data = await websocket.receive_json()
 
     try:
-        deploy(data["github_repo"], data["hostname"], data["username"], data["key"], data["env_file"], data["base_path"], MyCustomHandler(websocket))
-
+        await deploy(data["github_repo"], data["hostname"], data["username"], data["key"], data["env_file"], data["base_path"], MyCustomHandler(websocket))
         await websocket.send_text("SUCCESS: Deployment successful")
     except ResourceExhausted as e:
         await websocket.send_text("ERROR: ResourceExhausted")
@@ -44,7 +43,7 @@ async def redeploy_endpoint(websocket: fastapi.WebSocket):
     data = await websocket.receive_json()
 
     try:
-        deploy(data["github_repo"], data["hostname"], data["username"], data["key"], data["env_file"], data["base_path"], MyCustomHandler(websocket))
+        await deploy(data["github_repo"], data["hostname"], data["username"], data["key"], data["env_file"], data["base_path"], MyCustomHandler(websocket))
 
         await websocket.send_text("SUCCESS: Deployment successful")
     except ResourceExhausted as e:
