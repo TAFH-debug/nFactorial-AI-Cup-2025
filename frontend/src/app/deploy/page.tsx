@@ -44,7 +44,7 @@ export default function Page() {
         }
 
         try {
-            ws.current = new WebSocket("ws://localhost:8000/deploy");
+            ws.current = new WebSocket(`ws://${process.env.NEXT_PUBLIC_API_URL}/deploy`);
 
             const wsc = ws.current;
             

@@ -28,6 +28,7 @@ def redeploy(github_repo: str, hostname: str, username: str, key: str, env_file:
         You will be provided with project repository link.
         Your task is to redeploy the project on the remote server.
         There may be an existing deployment on the server.
+        Consider pulling the latest changes from the repository.
         Do not change Dockerfile if possible.
         You should stop the existing deployment then apply the changes to the project and then redeploy it.
         Also be careful when manipulating the docker containers.
